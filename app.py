@@ -23,21 +23,21 @@ if uploaded_file is not None:
     st.write("Transcribing audio...")
     
     # Load Whisper model
-    model = whisper.load_model("medium", device="cpu")
+    model = whisper.load_model("tiny", device="cpu")
     
     # Transcribe audio with tuned parameters
     result = model.transcribe(
-        audio_path,
-        verbose=True,  # Show detailed transcription process
-        task="transcribe",
-        language="en",  # Explicitly set to English
-        temperature=0.0,  # Deterministic output
-        beam_size=30,  # Increased for better hypothesis exploration
-        fp16=True,
-        condition_on_previous_text=True,  # Use context
-        no_speech_threshold=0.8,  # Stricter to ignore low-confidence segments
-        logprob_threshold=-0.3,  # Stricter for high-confidence transcriptions
-    )
+    audio_path,
+    task="transcribe",
+    language="en",
+    temperature=0.0,
+    beam_size=5,
+    fp16=False,
+    condition_on_previous_text=True,
+    no_speech_threshold=0.8,
+    logprob_threshold=-0.3,
+)
+
     
     # Capture verbose output
     # st.write("Verbose Output:")
