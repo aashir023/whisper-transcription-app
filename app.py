@@ -23,7 +23,7 @@ if uploaded_file is not None:
     st.write("Transcribing audio...")
     
     # Load Whisper model
-    model = whisper.load_model("tiny", device="cpu")
+    model = whisper.load_model("medium", device="cpu")
     
     # Transcribe audio with tuned parameters
     result = model.transcribe(
@@ -31,7 +31,7 @@ if uploaded_file is not None:
     task="transcribe",
     language="en",
     temperature=0.0,
-    beam_size=5,
+    beam_size=15,
     fp16=False,
     condition_on_previous_text=True,
     no_speech_threshold=0.8,
