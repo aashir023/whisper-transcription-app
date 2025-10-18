@@ -23,7 +23,7 @@ if uploaded_file is not None:
     st.write("Transcribing audio...")
     
     # Load Whisper model
-    model = whisper.load_model("medium", device="cpu")
+    model = whisper.load_model("tiny", device="cpu")
     
     # Transcribe audio with tuned parameters
     result = model.transcribe(
@@ -31,7 +31,7 @@ if uploaded_file is not None:
     task="transcribe",
     language="en",
     temperature=0.0,
-    beam_size=15,
+    beam_size=30,
     fp16=False,
     condition_on_previous_text=True,
     no_speech_threshold=0.8,
@@ -67,14 +67,14 @@ if uploaded_file is not None:
         st.write(sentence)
     
     # Save transcription to file
-    output_dir = "./outputs"
-    os.makedirs(output_dir, exist_ok=True)
-    output_path = os.path.join(output_dir, f"{Path(uploaded_file.name).stem}.txt")
-    with open(output_path, "w") as f:
-        for sentence in corrected_sentences:
-            f.write(sentence + "\n")
+    # output_dir = "./outputs"
+    # os.makedirs(output_dir, exist_ok=True)
+    # output_path = os.path.join(output_dir, f"{Path(uploaded_file.name).stem}.txt")
+    # with open(output_path, "w") as f:
+    #     for sentence in corrected_sentences:
+    #         f.write(sentence + "\n")
     
-    st.write(f"\nTranscription saved to {output_path}")
+    # st.write(f"\nTranscription saved to {output_path}")
     
     # Clean up temporary file
     os.remove(audio_path)
