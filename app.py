@@ -24,11 +24,12 @@ if uploaded_file is not None:
         # Transcribe — fast settings
         segments, _ = model.transcribe(
             audio_path,
-            beam_size=5,
-            best_of=1,
-            temperature=0.0,
             language="en",
-            condition_on_previous_text=False
+            beam_size=10,
+            best_of=10,
+            temperature=0.1,
+            no_speech_threshold=0.4,
+            condition_on_previous_text=True
         )
 
         # Combine text
