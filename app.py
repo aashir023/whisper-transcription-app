@@ -25,10 +25,10 @@ if uploaded_file is not None:
         segments, _ = model.transcribe(
             audio_path,
             language="en",
-            beam_size=10,
-            best_of=10,
-            temperature=0.1,
-            no_speech_threshold=0.4,
+            beam_size=7,
+            best_of=5,
+            temperature=0.0,
+            no_speech_threshold=0.5,
             condition_on_previous_text=True
         )
 
