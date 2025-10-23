@@ -1,80 +1,42 @@
 import streamlit as st
-import whisper
-import re
+from faster_whisper import WhisperModel
 import os
-from pathlib import Path
+import tempfile
 
-# Set up the Streamlit app
-st.title("Audio Transcription App")
-st.write("Upload an audio file (e.g., .mp3, .wav) to get its transcription.")
+# Title
+st.title("Fast Audio Transcription")
+st.write("Upload MP3 or WAV → Get instant transcription (CPU-optimized)")
 
-# File uploader for audio files
-uploaded_file = st.file_uploader("Choose an audio file", type=["mp3", "wav"])
+# File uploader
+uploaded_file = st.file_uploader("Choose audio file", type=["mp3", "wav", "m4a"])
 
 if uploaded_file is not None:
-    # Save the uploaded file temporarily
-    temp_dir = "./temp"
-    os.makedirs(temp_dir, exist_ok=True)
-    audio_path = os.path.join(temp_dir, uploaded_file.name)
-    with open(audio_path, "wb") as f:
-        f.write(uploaded_file.getbuffer())
-    
-    # Display processing message
-    st.write("Transcribing audio...")
-    
-    # Load Whisper model
-    model = whisper.load_model("tiny", device="cpu")
-    
-    # Transcribe audio with tuned parameters
-    result = model.transcribe(
-    audio_path,
-    task="transcribe",
-    language="en",
-    temperature=0.0,
-    beam_size=30,
-    fp16=False,
-    condition_on_previous_text=True,
-    no_speech_threshold=0.8,
-    logprob_threshold=-0.3,
-)
+    # Save to temp file
+    with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(uploaded_file.name)[1]) as tmp_file:
+        tmp_file.write(uploaded_file.getbuffer())
+        audio_path = tmp_file.name
 
-    
-    # Capture verbose output
-    # st.write("Verbose Output:")
-    # for segment in result.get("segments", []):
-    #     start = segment["start"]
-    #     end = segment["end"]
-    #     text = segment["text"]
-    #     st.write(f"[{start:00.3f} --> {end:00.3f}] {text}")
-    
-    # Get the raw transcription  for edits
-    text = result["text"]
-    
-    # Split text into sentences
-    sentences = re.split(r'(?<=[.!?])\s+', text.strip())
-    
-    # Remove exact duplicates (general post-processing)
-    corrected_sentences = []
-    seen_sentences = set()
-    for sentence in sentences:
-        if sentence not in seen_sentences:
-            corrected_sentences.append(sentence)
-            seen_sentences.add(sentence)
-    
-    # Display transcription in the UI
-    st.write("\n**Transcription:**")
-    for sentence in corrected_sentences:
-        st.write(sentence)
-    
-    # Save transcription to file
-    # output_dir = "./outputs"
-    # os.makedirs(output_dir, exist_ok=True)
-    # output_path = os.path.join(output_dir, f"{Path(uploaded_file.name).stem}.txt")
-    # with open(output_path, "w") as f:
-    #     for sentence in corrected_sentences:
-    #         f.write(sentence + "\n")
-    
-    # st.write(f"\nTranscription saved to {output_path}")
-    
-    # Clean up temporary file
-    os.remove(audio_path)
+    # Show processing
+    with st.spinner("Transcribing (fast on CPU)..."):
+        # Load faster-whisper small model (int8 = fast & small)
+        model = WhisperModel("small", device="cpu", compute_type="int8")
+
+        # Transcribe — fast settings
+        segments, _ = model.transcribe(
+            audio_path,
+            beam_size=5,
+            best_of=1,
+            temperature=0.0,
+            language="en",
+            condition_on_previous_text=False
+        )
+
+        # Combine text
+        transcription = " ".join(segment.text for segment in segments).strip()
+
+    # Show result
+    st.success("Transcription complete!")
+    st.write(transcription)
+
+    # Cleanup
+    os.unlink(audio_path)
