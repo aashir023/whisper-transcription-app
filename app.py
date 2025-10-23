@@ -5,7 +5,7 @@ import tempfile
 
 # Title
 st.title("Fast Audio Transcription")
-st.write("Upload MP3 or WAV → Get instant transcription (CPU-optimized)")
+st.write("Upload MP3 or WAV → Get transcription")
 
 # File uploader
 uploaded_file = st.file_uploader("Choose audio file", type=["mp3", "wav", "m4a"])
@@ -17,7 +17,7 @@ if uploaded_file is not None:
         audio_path = tmp_file.name
 
     # Show processing
-    with st.spinner("Transcribing (fast on CPU)..."):
+    with st.spinner("Transcribing"):
         # Load faster-whisper small model (int8 = fast & small)
         model = WhisperModel("small", device="cpu", compute_type="int8")
 
