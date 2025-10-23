@@ -4,7 +4,7 @@ import os
 import tempfile
 
 # Title
-st.title("Fast Audio Transcription")
+st.title("Audio Transcription")
 st.write("Upload MP3 or WAV → Get transcription")
 
 # File uploader
